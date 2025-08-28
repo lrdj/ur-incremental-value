@@ -1,0 +1,11 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Projects{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">Projects</h1>
+<ul class="govuk-list">
+  {% for p in projects %}
+    <li><a href="/projects/{{ p.id }}">{{ p.name }}</a> – {{ p.org_name }} ({{ p.department }})</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+

@@ -1,0 +1,53 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Insight{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">{{ insight.title }}</h1>
+<p class="govuk-body">{{ insight.description }}</p>
+<p class="govuk-body"><strong>What we observed:</strong> {{ insight.what_we_observed }}</p>
+<p class="govuk-body"><strong>Why it matters:</strong> {{ insight.why_it_matters }}</p>
+<p class="govuk-body"><strong>Evidence:</strong> {{ insight.evidence }} · <strong>Source:</strong> {{ insight.source }} · <strong>Discovered:</strong> {{ insight.date_discovered }}</p>
+
+<h2 class="govuk-heading-m">Influences objectives</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for o in objs %}
+    <li>{{ o.title }} <span class="govuk-hint">({{ o.link_type }})</span></li>
+  {% endfor %}
+</ul>
+
+<h2 class="govuk-heading-m">Contributes to key results</h2>
+<table class="govuk-table">
+  <thead><tr class="govuk-table__row">
+    <th class="govuk-table__header">Key result</th>
+    <th class="govuk-table__header">Weight</th>
+    <th class="govuk-table__header">Confidence</th>
+    <th class="govuk-table__header">Mechanism</th>
+  </tr></thead>
+  <tbody>
+  {% for kr in krs %}
+    <tr class="govuk-table__row">
+      <td class="govuk-table__cell"><a href="/okr/kr/{{ kr.id }}">{{ kr.title }}</a></td>
+      <td class="govuk-table__cell">{{ kr.contribution_weight }}</td>
+      <td class="govuk-table__cell">{{ kr.confidence }}</td>
+      <td class="govuk-table__cell">{{ kr.mechanism }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="govuk-heading-m">Decisions informed</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for d in decisions %}
+    <li>{{ d.decided_on }} – {{ d.summary }} <span class="govuk-hint">({{ d.project_name }})</span></li>
+  {% endfor %}
+</ul>
+
+<h2 class="govuk-heading-m">Experiments linked</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for e in experiments %}
+    <li>{{ e.project_name }}: {{ e.hypothesis }} – <strong>{{ e.status }}</strong> {% if e.result %} ({{ e.result }}){% endif %}</li>
+  {% endfor %}
+</ul>
+
+<p class="govuk-body"><a class="govuk-link" href="/insights">Back to insights</a></p>
+{% endblock %}
+

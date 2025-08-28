@@ -1,0 +1,29 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}OKR dashboard{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">OKR dashboard</h1>
+<table class="govuk-table">
+  <thead class="govuk-table__head">
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header">Organisation</th>
+      <th class="govuk-table__header">Objective</th>
+      <th class="govuk-table__header">Key result</th>
+      <th class="govuk-table__header">Latest</th>
+    </tr>
+  </thead>
+  <tbody class="govuk-table__body">
+    {% for kr in krs %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">{{ kr.org_name }}</td>
+        <td class="govuk-table__cell">{{ kr.objective_title }}</td>
+        <td class="govuk-table__cell"><a href="/okr/kr/{{ kr.id }}">{{ kr.title }}</a></td>
+        <td class="govuk-table__cell">
+          {% if kr.latest_value %}{{ kr.latest_value }} {{ kr.unit }} ({{ kr.latest_date }}){% else %}-{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+  </table>
+<p class="govuk-body"><a class="govuk-link" href="/projects">View projects</a> · <a class="govuk-link" href="/insights">Browse insights</a></p>
+{% endblock %}
+

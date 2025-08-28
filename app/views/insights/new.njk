@@ -1,0 +1,84 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Add insight{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">Add a new insight</h1>
+
+{% if data.error %}
+  <div class="govuk-error-summary" data-module="govuk-error-summary">
+    <div role="alert">
+      <h2 class="govuk-error-summary__title">There is a problem</h2>
+      <div class="govuk-error-summary__body">
+        <p class="govuk-body">{{ data.error }}</p>
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+<form class="govuk-!-margin-bottom-6" method="post" action="/insights/new">
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="title">Title</label>
+    <input class="govuk-input" id="title" name="title" type="text" required>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="why_it_matters">Why it matters</label>
+    <textarea class="govuk-textarea" id="why_it_matters" name="why_it_matters"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="source">Source</label>
+    <input class="govuk-input" id="source" name="source" type="text">
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="date_discovered">Date discovered</label>
+    <input class="govuk-input" id="date_discovered" name="date_discovered" type="date" required>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="kr_id">Link to key result</label>
+    <select class="govuk-select" id="kr_id" name="kr_id" required>
+      <option value="">Select a key result</option>
+      {% for kr in krs %}
+        <option value="{{ kr.id }}">{{ kr.org_name }} – {{ kr.objective_title }} – {{ kr.title }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="govuk-form-group">
+    <fieldset class="govuk-fieldset" aria-describedby="weight-hint">
+      <legend class="govuk-fieldset__legend govuk-fieldset__legend--s">Contribution weight</legend>
+      <div id="weight-hint" class="govuk-hint">Choose a quick preset</div>
+      <div class="govuk-radios" data-module="govuk-radios">
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="weight-01" name="weight" type="radio" value="0.1" required>
+          <label class="govuk-label govuk-radios__label" for="weight-01">0.1 (low)</label>
+        </div>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="weight-03" name="weight" type="radio" value="0.3">
+          <label class="govuk-label govuk-radios__label" for="weight-03">0.3 (medium)</label>
+        </div>
+        <div class="govuk-radios__item">
+          <input class="govuk-radios__input" id="weight-06" name="weight" type="radio" value="0.6">
+          <label class="govuk-label govuk-radios__label" for="weight-06">0.6 (high)</label>
+        </div>
+      </div>
+    </fieldset>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="confidence">Confidence (0–1)</label>
+    <input class="govuk-input" id="confidence" name="confidence" type="number" min="0" max="1" step="0.1" value="0.8">
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="mechanism">Mechanism (optional)</label>
+    <input class="govuk-input" id="mechanism" name="mechanism" type="text" placeholder="e.g. solution_validated">
+  </div>
+
+  <button class="govuk-button" data-module="govuk-button" type="submit">Save insight</button>
+</form>
+
+<p class="govuk-body"><a class="govuk-link" href="/insights">Back to insights</a></p>
+{% endblock %}
+

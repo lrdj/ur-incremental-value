@@ -1,0 +1,48 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Key result{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">{{ kr.title }}</h1>
+<p class="govuk-body">Objective: <a href="#">{{ kr.objective_title }}</a> &middot; Organisation: {{ kr.org_name }}</p>
+
+<h2 class="govuk-heading-m">Progress</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for pt in kr.progress %}
+    <li>{{ pt.captured_on }}: {{ pt.value }} {{ kr.unit }} (confidence {{ pt.confidence }}) – {{ pt.note }}</li>
+  {% endfor %}
+  {% if kr.progress.length == 0 %}
+    <li>No progress data captured yet.</li>
+  {% endif %}
+  </ul>
+
+<h2 class="govuk-heading-m">Linked insights (with simple contribution score)</h2>
+<table class="govuk-table">
+  <thead><tr class="govuk-table__row">
+    <th class="govuk-table__header">Insight</th>
+    <th class="govuk-table__header">Weight</th>
+    <th class="govuk-table__header">Confidence</th>
+    <th class="govuk-table__header">Mechanism</th>
+    <th class="govuk-table__header">Score</th>
+  </tr></thead>
+  <tbody>
+  {% for i in insights %}
+    <tr class="govuk-table__row">
+      <td class="govuk-table__cell"><a href="/insights/{{ i.insight_id }}">{{ i.title }}</a></td>
+      <td class="govuk-table__cell">{{ i.contribution_weight }}</td>
+      <td class="govuk-table__cell">{{ i.confidence }}</td>
+      <td class="govuk-table__cell">{{ i.mechanism }}</td>
+      <td class="govuk-table__cell">{{ i.score }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="govuk-heading-m">Projects contributing</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for p in projects %}
+    <li><a href="/projects/{{ p.id }}">{{ p.name }}</a> – weight {{ p.weight }} ({{ p.department }})</li>
+  {% endfor %}
+</ul>
+
+<p class="govuk-body"><a class="govuk-link" href="/okr/dashboard">Back to dashboard</a></p>
+{% endblock %}
+

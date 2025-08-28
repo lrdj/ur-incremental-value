@@ -1,0 +1,31 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Project{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">{{ project.name }}</h1>
+<p class="govuk-body">{{ project.org_name }} – {{ project.department }}</p>
+<p class="govuk-body">Progress: {{ project.current_progress }}</p>
+
+<h2 class="govuk-heading-m">Key results contributed to</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for k in krs %}
+    <li><a href="/okr/kr/{{ k.id }}">{{ k.title }}</a> – weight {{ k.weight }} <span class="govuk-hint">(Objective: {{ k.objective_title }})</span></li>
+  {% endfor %}
+</ul>
+
+<h2 class="govuk-heading-m">Decisions</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for d in decisions %}
+    <li>{{ d.decided_on }} – {{ d.summary }} <span class="govuk-hint">({{ d.decided_by }})</span></li>
+  {% endfor %}
+</ul>
+
+<h2 class="govuk-heading-m">Experiments</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for e in experiments %}
+    <li>{{ e.hypothesis }} – <strong>{{ e.status }}</strong> {% if e.result %} ({{ e.result }}){% endif %}</li>
+  {% endfor %}
+</ul>
+
+<p class="govuk-body"><a class="govuk-link" href="/projects">Back to projects</a></p>
+{% endblock %}
+

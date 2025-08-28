@@ -1,0 +1,14 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Insights{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">Insights</h1>
+
+<p class="govuk-body"><a class="govuk-button" data-module="govuk-button" href="/insights/new">Add a new insight</a></p>
+
+<ul class="govuk-list">
+  {% for i in insights %}
+    <li><a href="/insights/{{ i.id }}">{{ i.title }}</a> – {{ i.date_discovered }} – {{ i.source }}</li>
+  {% endfor %}
+</ul>
+{% endblock %}
+
