@@ -1,10 +1,23 @@
 {% extends "layouts/main.html" %}
 {% block pageTitle %}Key result{% endblock %}
 {% block content %}
+
 <h1 class="govuk-heading-l">{{ kr.title }}</h1>
+
 <p class="govuk-body">Objective: <a href="/okr/objective/{{ kr.objective_id }}">{{ kr.objective_title }}</a> &middot; Organisation: {{ kr.org_name }}</p>
 
 <h2 class="govuk-heading-m">Progress</h2>
+
+<ul class="govuk-list">
+  {% for pt in kr.progress %}
+    <li style="display: inline-block;margin-right:0.25rem;padding:0.25rem 0.75rem 0.5rem 0.75rem; text-align:center;font-weight:bold;font-size:xx-large;background:#eee;">{{ pt.value }}{{ kr.unit }}</li>
+  {% endfor %}
+  {% if kr.progress.length == 0 %}
+    <li>No progress data captured yet.</li>
+  {% endif %}
+    <li style="display: inline-block;margin-right:0.25rem;padding:0.25rem 0.75rem 0.5rem 0.75rem; text-align:center;font-weight:bold;font-size:xx-large;background:#eee;"><!-- sparkline svg goes here --></li>
+</ul>
+
 <ul class="govuk-list govuk-list--bullet">
   {% for pt in kr.progress %}
     <li>{{ pt.captured_on }}: {{ pt.value }} {{ kr.unit }} (confidence {{ pt.confidence }}) – {{ pt.note }}</li>
@@ -12,9 +25,10 @@
   {% if kr.progress.length == 0 %}
     <li>No progress data captured yet.</li>
   {% endif %}
-  </ul>
+</ul>
 
 <h2 class="govuk-heading-m">Linked insights (with simple contribution score)</h2>
+
 <table class="govuk-table">
   <thead><tr class="govuk-table__row">
     <th class="govuk-table__header">Insight</th>
