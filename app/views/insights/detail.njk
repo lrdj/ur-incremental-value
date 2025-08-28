@@ -1,11 +1,32 @@
 {% extends "layouts/main.html" %}
 {% block pageTitle %}Insight{% endblock %}
+
 {% block content %}
+
+      <div class="govuk-grid-row">
+        <div class="govuk-grid-column-three-quarters">
+
+<span class="govuk-caption-m">Logged UR insight</span>
 <h1 class="govuk-heading-l">{{ insight.title }}</h1>
-<p class="govuk-body">{{ insight.description }}</p>
-<p class="govuk-body"><strong>What we observed:</strong> {{ insight.what_we_observed }}</p>
-<p class="govuk-body"><strong>Why it matters:</strong> {{ insight.why_it_matters }}</p>
-<p class="govuk-body"><strong>Evidence:</strong> {{ insight.evidence }} · <strong>Source:</strong> {{ insight.source }} · <strong>Discovered:</strong> {{ insight.date_discovered }}</p>
+<p class="govuk-body-l">{{ insight.description }}</p>
+<p class="govuk-body"><strong>What we observed:</strong><br>{{ insight.what_we_observed }}</p>
+<p class="govuk-body"><strong>Why it matters:</strong><br>{{ insight.why_it_matters }}</p>
+<p class="govuk-body">
+  <strong>Evidence:</strong>
+  {% if insight.evidence and ';' in insight.evidence %}
+    <ul class="govuk-list govuk-list--bullet">
+    {% for item in insight.evidence.split(';') %}
+      <li>{{ item | trim }}</li>
+    {% endfor %}
+    </ul>
+  {% else %}
+    {{ insight.evidence }}
+  {% endif %}
+</p>
+<p class="govuk-body">
+  <strong>Source:</strong> {{ insight.source }} · <strong>Discovered:</strong> {{ insight.date_discovered }}
+  {% if insight.contains_pii %}<span class="govuk-tag govuk-tag--red govuk-!-margin-left-2">PII</span>{% endif %}
+</p>
 
 <h2 class="govuk-heading-m">Influences objectives</h2>
 <ul class="govuk-list govuk-list--bullet">
@@ -49,5 +70,14 @@
 </ul>
 
 <p class="govuk-body"><a class="govuk-link" href="/insights">Back to insights</a></p>
-{% endblock %}
 
+        </div>
+        <div class="govuk-grid-column-one-quarter">
+          <p class="govuk-body">
+          <!-- right-hand column -->
+          </p>
+        </div>
+      </div>
+
+
+{% endblock %}
