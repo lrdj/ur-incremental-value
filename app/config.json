@@ -1,5 +1,5 @@
 {
-  "serviceName": "Service name goes here",
+  "serviceName": "Incremental UR value protoype",
   "plugins": {
     "govuk-frontend": {
       "rebrand": true
