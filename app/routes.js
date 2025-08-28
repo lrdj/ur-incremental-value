@@ -37,7 +37,7 @@ router.get('/', (req, res) => res.redirect('/okr/dashboard'))
 router.get('/okr/dashboard', (req, res) => {
   const krs = db.prepare(`
     SELECT kr.id, kr.title, kr.unit, kr.direction,
-           o.title AS objective_title, org.name AS org_name
+           o.id AS objective_id, o.title AS objective_title, org.name AS org_name
     FROM key_result kr
     JOIN objective o ON o.id = kr.objective_id
     JOIN organization org ON org.id = o.organization_id
@@ -92,6 +92,57 @@ router.get('/okr/kr/:id', (req, res) => {
   `).all(krId);
 
   res.render('okr/kr.njk', { kr, insights: scored, projects });
+});
+
+// Objective detail
+router.get('/okr/objective/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const objective = db.prepare(`
+    SELECT o.*, org.name AS org_name
+    FROM objective o
+    JOIN organization org ON org.id = o.organization_id
+    WHERE o.id = ?
+  `).get(id);
+
+  const krs = db.prepare(`
+    SELECT kr.id, kr.title, kr.unit, kr.direction
+    FROM key_result kr WHERE kr.objective_id = ?
+    ORDER BY kr.title
+  `).all(id);
+
+  // attach latest progress to each KR
+  const latestStmt = db.prepare(`
+    SELECT value, captured_on FROM kr_progress
+    WHERE key_result_id = ? ORDER BY captured_on DESC LIMIT 1`);
+  const krsWithLatest = krs.map(kr => {
+    const latest = latestStmt.get(kr.id);
+    return { ...kr, latest_value: latest?.value, latest_date: latest?.captured_on };
+  });
+
+  const insights = db.prepare(`
+    SELECT i.id, i.title, i.date_discovered, io.link_type
+    FROM insight_objective io
+    JOIN insight i ON i.id = io.insight_id
+    WHERE io.objective_id = ?
+    ORDER BY i.date_discovered DESC
+  `).all(id);
+
+  const projects = db.prepare(`
+    SELECT p.id, p.name, p.department, MAX(pk.weight) AS weight
+    FROM project_kr pk
+    JOIN key_result kr ON kr.id = pk.key_result_id
+    JOIN project p ON p.id = pk.project_id
+    WHERE kr.objective_id = ?
+    GROUP BY p.id, p.name, p.department
+    ORDER BY weight DESC, p.name
+  `).all(id);
+
+  res.render('okr/objective.njk', {
+    objective,
+    krs: krsWithLatest,
+    insights,
+    projects
+  });
 });
 
 // Insights list

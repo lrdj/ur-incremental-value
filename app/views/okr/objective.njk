@@ -1,0 +1,42 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Objective{% endblock %}
+{% block content %}
+<h1 class="govuk-heading-l">{{ objective.title }}</h1>
+<p class="govuk-body">Organisation: {{ objective.org_name }}{% if objective.owner %} · Owner: {{ objective.owner }}{% endif %}</p>
+<p class="govuk-hint">Period: {{ objective.period_start }} to {{ objective.period_end }} · Status: {{ objective.status }}</p>
+
+<h2 class="govuk-heading-m">Key results</h2>
+<table class="govuk-table">
+  <thead>
+    <tr class="govuk-table__row">
+      <th class="govuk-table__header">Key result</th>
+      <th class="govuk-table__header">Latest</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for kr in krs %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell"><a href="/okr/kr/{{ kr.id }}">{{ kr.title }}</a></td>
+        <td class="govuk-table__cell">{% if kr.latest_value %}{{ kr.latest_value }} {{ kr.unit }} ({{ kr.latest_date }}){% else %}-{% endif %}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2 class="govuk-heading-m">Insights influencing this objective</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for i in insights %}
+    <li><a href="/insights/{{ i.id }}">{{ i.title }}</a> <span class="govuk-hint">({{ i.link_type }})</span></li>
+  {% endfor %}
+</ul>
+
+<h2 class="govuk-heading-m">Projects contributing</h2>
+<ul class="govuk-list govuk-list--bullet">
+  {% for p in projects %}
+    <li><a href="/projects/{{ p.id }}">{{ p.name }}</a> – weight {{ p.weight }} <span class="govuk-hint">({{ p.department }})</span></li>
+  {% endfor %}
+</ul>
+
+<p class="govuk-body"><a class="govuk-link" href="/okr/dashboard">Back to dashboard</a></p>
+{% endblock %}
+

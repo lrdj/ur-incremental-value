@@ -2,7 +2,7 @@
 {% block pageTitle %}Key result{% endblock %}
 {% block content %}
 <h1 class="govuk-heading-l">{{ kr.title }}</h1>
-<p class="govuk-body">Objective: <a href="#">{{ kr.objective_title }}</a> &middot; Organisation: {{ kr.org_name }}</p>
+<p class="govuk-body">Objective: <a href="/okr/objective/{{ kr.objective_id }}">{{ kr.objective_title }}</a> &middot; Organisation: {{ kr.org_name }}</p>
 
 <h2 class="govuk-heading-m">Progress</h2>
 <ul class="govuk-list govuk-list--bullet">
@@ -45,4 +45,3 @@
 
 <p class="govuk-body"><a class="govuk-link" href="/okr/dashboard">Back to dashboard</a></p>
 {% endblock %}
-
