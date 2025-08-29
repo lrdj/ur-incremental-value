@@ -9,6 +9,7 @@ const router = govukPrototypeKit.requests.setupRouter()
 // App routes
 const { db, migrate } = require('../lib/db');
 const { scoreInsightForKR } = require('../lib/attribution');
+const { makeSparklinePath } = require('../lib/sparkline');
 const { format } = require('date-fns');
 
 // Ensure DB ready on first load
@@ -91,7 +92,28 @@ router.get('/okr/kr/:id', (req, res) => {
     ORDER BY pk.weight DESC, p.name
   `).all(krId);
 
-  res.render('okr/kr.njk', { kr, insights: scored, projects });
+  // Sparkline + delta (may be unused in view) and trend word for accessibility
+  const values = (kr.progress || []).map(p => Number(p.value)).filter(v => Number.isFinite(v));
+  let sparkPath = '';
+  if (values.length) {
+    sparkPath = makeSparklinePath(values, { width: 140, height: 28, padding: 2 });
+  }
+
+  let deltaLabel = null;
+  let trendClass = '';
+  let trendWord = 'static';
+  if (values.length >= 2) {
+    const before = values[values.length - 2];
+    const after = values[values.length - 1];
+    const delta = after - before;
+    const improved = kr.direction === 'down' ? delta < 0 : delta > 0;
+    trendClass = improved ? 'sparkline--positive' : 'sparkline--negative';
+    const sign = delta > 0 ? '+' : '';
+    deltaLabel = `Δ ${sign}${(Math.round(delta * 100) / 100)} ${kr.unit || ''}`.trim();
+    trendWord = delta > 0 ? 'rising' : (delta < 0 ? 'dropping' : 'static');
+  }
+
+  res.render('okr/kr.njk', { kr: { ...kr, sparkPath, deltaLabel, trendClass, trendWord }, insights: scored, projects });
 });
 
 // Objective detail
@@ -291,6 +313,11 @@ router.get('/projects/:id', (req, res) => {
     ORDER BY e.start_on DESC`).all(id);
 
   res.render('projects/detail.njk', { project: p, krs, decisions, experiments });
+});
+
+// Docs: scoring explanation
+router.get('/docs/scoring', (req, res) => {
+  res.render('docs/scoring.njk');
 });
 
 module.exports = router

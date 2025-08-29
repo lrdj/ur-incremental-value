@@ -2,25 +2,69 @@
 {% block pageTitle %}Key result{% endblock %}
 {% block content %}
 
+<span class="govuk-caption-l">Progress on key result</span>
 <h1 class="govuk-heading-l">{{ kr.title }}</h1>
 
-<p class="govuk-body">Objective: <a href="/okr/objective/{{ kr.objective_id }}">{{ kr.objective_title }}</a> &middot; Organisation: {{ kr.org_name }}</p>
+<p class="govuk-body">
+  This key result maps to the organisational objective:
+  <a href="/okr/objective/{{ kr.objective_id }}">{{ kr.objective_title }}</a>.
+  Organisation: {{ kr.org_name }}
+</p>
 
-<h2 class="govuk-heading-m">Progress</h2>
+<h2 class="govuk-heading-m">Quarterly progress (rolling)</h2>
+
+{# styles moved to application.scss (.kr-spark, .kr-spark-bar) #}
 
 <ul class="govuk-list">
   {% for pt in kr.progress %}
-    <li style="display: inline-block;margin-right:0.25rem;padding:0.25rem 0.75rem 0.5rem 0.75rem; text-align:center;font-weight:bold;font-size:xx-large;background:#eee;">{{ pt.value }}{{ kr.unit }}</li>
+    <li class="kr-chip"
+        title="{{ pt.captured_on }} – confidence {{ pt.confidence }} – {{ pt.note }}">
+      {{ pt.value }} {{ kr.unit }}
+    </li>
   {% endfor %}
   {% if kr.progress.length == 0 %}
     <li>No progress data captured yet.</li>
   {% endif %}
-    <li style="display: inline-block;margin-right:0.25rem;padding:0.25rem 0.75rem 0.5rem 0.75rem; text-align:center;font-weight:bold;font-size:xx-large;background:#eee;"><!-- sparkline svg goes here --></li>
+
+  {# tiny 3-bar chart, scaled to 40px height #}
+  {% set points_desc = kr.progress %}
+  {% set maxv = 0 %}
+  {% for pt in points_desc %}
+    {% if loop.index0 < 3 and pt.value > maxv %}
+      {% set maxv = pt.value %}
+    {% endif %}
+  {% endfor %}
+  {% if maxv == 0 %}{% set maxv = 1 %}{% endif %}
+
+  <li class="kr-chip">
+    <span class="kr-spark" aria-hidden="true">
+      {% for pt in points_desc %}
+        {% if loop.index0 < 3 %}
+          <span class="kr-spark-bar"
+                style="height: {{ (pt.value / maxv * 20) | round(0, 'floor') }}px"></span>
+        {% endif %}
+      {% endfor %}
+    </span>
+  </li>
+  {# Screen-reader friendly description of the mini chart #}
+  {% set values_text = '' %}
+  {% for pt in points_desc %}
+    {% if loop.index0 < 3 %}
+      {% if values_text %}{% set values_text = values_text ~ ', ' %}{% endif %}
+      {% set values_text = values_text ~ pt.value ~ ' ' ~ (kr.unit or '') %}
+    {% endif %}
+  {% endfor %}
+  <li class="govuk-visually-hidden">
+    Mini chart shows values: {{ values_text }}. The trend towards this key result is {{ kr.trendWord }}.
+  </li>
 </ul>
 
 <ul class="govuk-list govuk-list--bullet">
   {% for pt in kr.progress %}
-    <li>{{ pt.captured_on }}: {{ pt.value }} {{ kr.unit }} (confidence {{ pt.confidence }}) – {{ pt.note }}</li>
+    <li>
+      {{ pt.captured_on }}: {{ pt.value }} {{ kr.unit }}
+      (confidence {{ pt.confidence }}) – {{ pt.note }}
+    </li>
   {% endfor %}
   {% if kr.progress.length == 0 %}
     <li>No progress data captured yet.</li>
@@ -30,32 +74,41 @@
 <h2 class="govuk-heading-m">Linked insights (with simple contribution score)</h2>
 
 <table class="govuk-table">
-  <thead><tr class="govuk-table__row">
-    <th class="govuk-table__header">Insight</th>
-    <th class="govuk-table__header">Weight</th>
-    <th class="govuk-table__header">Confidence</th>
-    <th class="govuk-table__header">Mechanism</th>
-    <th class="govuk-table__header">Score</th>
-  </tr></thead>
-  <tbody>
-  {% for i in insights %}
+  <thead>
     <tr class="govuk-table__row">
-      <td class="govuk-table__cell"><a href="/insights/{{ i.insight_id }}">{{ i.title }}</a></td>
-      <td class="govuk-table__cell">{{ i.contribution_weight }}</td>
-      <td class="govuk-table__cell">{{ i.confidence }}</td>
-      <td class="govuk-table__cell">{{ i.mechanism }}</td>
-      <td class="govuk-table__cell">{{ i.score }}</td>
+      <th class="govuk-table__header">Insight</th>
+      <th class="govuk-table__header">Weight</th>
+      <th class="govuk-table__header">Confidence</th>
+      <th class="govuk-table__header">Mechanism</th>
+      <th class="govuk-table__header">Score</th>
     </tr>
-  {% endfor %}
+  </thead>
+  <tbody>
+    {% for i in insights %}
+      <tr class="govuk-table__row">
+        <td class="govuk-table__cell">
+          <a href="/insights/{{ i.insight_id }}">{{ i.title }}</a>
+        </td>
+        <td class="govuk-table__cell">{{ i.contribution_weight }}</td>
+        <td class="govuk-table__cell">{{ i.confidence }}</td>
+        <td class="govuk-table__cell">{{ i.mechanism }}</td>
+        <td class="govuk-table__cell">{{ i.score }}</td>
+      </tr>
+    {% endfor %}
   </tbody>
 </table>
 
 <h2 class="govuk-heading-m">Projects contributing</h2>
 <ul class="govuk-list govuk-list--bullet">
   {% for p in projects %}
-    <li><a href="/projects/{{ p.id }}">{{ p.name }}</a> – weight {{ p.weight }} ({{ p.department }})</li>
+    <li>
+      <a href="/projects/{{ p.id }}">{{ p.name }}</a> –
+      weight {{ p.weight }} ({{ p.department }})
+    </li>
   {% endfor %}
 </ul>
 
-<p class="govuk-body"><a class="govuk-link" href="/okr/dashboard">Back to dashboard</a></p>
+<p class="govuk-body">
+  <a class="govuk-link" href="/okr/dashboard">Back to dashboard</a>
+</p>
 {% endblock %}

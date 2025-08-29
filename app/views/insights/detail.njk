@@ -6,7 +6,7 @@
       <div class="govuk-grid-row">
         <div class="govuk-grid-column-three-quarters">
 
-<span class="govuk-caption-m">Logged UR insight</span>
+<span class="govuk-caption-l">Logged UR insight</span>
 <h1 class="govuk-heading-l">{{ insight.title }}</h1>
 <p class="govuk-body-l">{{ insight.description }}</p>
 <p class="govuk-body"><strong>What we observed:</strong><br>{{ insight.what_we_observed }}</p>
@@ -27,6 +27,8 @@
   <strong>Source:</strong> {{ insight.source }} · <strong>Discovered:</strong> {{ insight.date_discovered }}
   {% if insight.contains_pii %}<span class="govuk-tag govuk-tag--red govuk-!-margin-left-2">PII</span>{% endif %}
 </p>
+
+
 
 <h2 class="govuk-heading-m">Influences objectives</h2>
 <ul class="govuk-list govuk-list--bullet">
@@ -74,7 +76,7 @@
         </div>
         <div class="govuk-grid-column-one-quarter">
           <p class="govuk-body">
-          <!-- right-hand column goes here...
+          <!-- right-hand column goes here -->
           </p>
         </div>
       </div>

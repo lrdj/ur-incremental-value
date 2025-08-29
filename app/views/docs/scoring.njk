@@ -1,0 +1,66 @@
+{% extends "layouts/main.html" %}
+{% block pageTitle %}Insight contribution scoring{% endblock %}
+{% block content %}
+
+<h1 class="govuk-heading-l">Insight contribution scoring</h1>
+<p class="govuk-body">This page explains the simple scoring used to order insights on a key result (KR). It’s a directional influence signal to aid discussion, not a causal proof.</p>
+
+<h2 class="govuk-heading-m">Overview</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Purpose:</strong> Rank which insights most plausibly contributed to the latest KR movement.</li>
+  <li><strong>Granularity:</strong> Per insight per KR, based on the KR’s latest step (last two readings).</li>
+  <li><strong>Formula:</strong> <code>weight × confidence × time-decay × normalised KR delta</code>.</li>
+  <li><strong>Use:</strong> Compare insights on the same KR; avoid cross‑KR comparisons unless you normalise units.</li>
+  </ul>
+
+<h2 class="govuk-heading-m">Inputs</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Contribution weight (0–1):</strong> How much the insight is thought to matter for that KR (presets: 0.1, 0.3, 0.6).</li>
+  <li><strong>Confidence (0–1):</strong> Confidence in the link (evidence quality, triangulation).</li>
+  <li><strong>Time‑decay:</strong> Recency weighting (gentle decay with half‑life ≈ 120 days).</li>
+  <li><strong>Normalised KR delta:</strong> Change between the last two values, adjusted for KR direction:
+    <ul class="govuk-list govuk-list--bullet">
+      <li>Direction ‘up’: <code>after − before</code>.</li>
+      <li>Direction ‘down’: <code>−(after − before)</code> (a reduction is positive).</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 class="govuk-heading-m">Interpretation</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Sign:</strong> Positive = movement in the desired direction; negative = movement against it.</li>
+  <li><strong>Magnitude:</strong> Larger absolute score = stronger recent movement, scaled by weight and confidence.</li>
+  <li><strong>Ranking:</strong> Best used to order insights for a single KR.</li>
+</ul>
+
+<h3 class="govuk-heading-s">Example</h3>
+<p class="govuk-body">KR ‘up’: 88% → 91% (delta +3). Link weight 0.3, confidence 0.8, decay 0.95 → score ≈ <code>0.3 × 0.8 × 0.95 × 3 = 0.684</code>.</p>
+
+<h2 class="govuk-heading-m">Three‑bar trend</h2>
+<p class="govuk-body">The small three‑bar chart shows the last three KR readings. These are measurement snapshots you record (e.g., monthly). They are not automatically tied to “research rounds” or “release dates” unless you choose to capture readings on those event dates.</p>
+
+<h2 class="govuk-heading-m">Relating trend to research and delivery</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Keep as measurements (default):</strong> Record regular KR readings; add context in the note (e.g., “Wizard live”, “Callback pilot ended”).</li>
+  <li><strong>Annotate events:</strong> Show markers for insight links, decisions, experiments (using their dates) beside the KR readings.</li>
+  <li><strong>Event‑anchored view:</strong> Optionally filter/align the trend to periods after a release or decision.</li>
+</ul>
+
+<h2 class="govuk-heading-m">Limits and refinements</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><strong>Single‑step delta:</strong> Only the last two points are used (reduces complexity but can be noisy). Consider average slope over more points.</li>
+  <li><strong>Unit differences:</strong> Scores carry KR units; normalise (e.g., percentage of target change) before comparing across KRs.</li>
+  <li><strong>Overlapping attribution:</strong> Multiple insights can coincide; scores do not apportion overlaps. Consider capping total implied weight.</li>
+</ul>
+
+<h2 class="govuk-heading-m">Where implemented</h2>
+<ul class="govuk-list govuk-list--bullet">
+  <li><code>lib/attribution.js</code> — score calculator.</li>
+  <li><code>app/routes.js</code> — KR route computes a simple trend word from the last two readings.</li>
+  <li>KR view displays the three most recent values and the accessible trend description.</li>
+</ul>
+
+<p class="govuk-body"><a class="govuk-link" href="/okr/dashboard">Back to dashboard</a></p>
+
+{% endblock %}
+

@@ -4,3 +4,39 @@
 // 
 
 // Add extra styles here
+.sparkline {
+  stroke: #1d70b8; /* govuk blue */
+  fill: none;
+  stroke-width: 2;
+}
+.sparkline--positive { stroke: #00703c; } /* govuk green */
+.sparkline--negative { stroke: #d4351c; } /* govuk red */
+.kr-chip {
+  display: inline-block;
+  margin-right: 0.25rem;
+  padding: 0.25rem 0.75rem 0.5rem 0.75rem;
+  text-align: center;
+  font-weight: bold;
+  font-size: large;
+  background: #eee;
+  border-radius: 4px;
+}
+
+/* Simple inline 3-bar spark built with CSS, no JS */
+.kr-spark {
+  display: inline-grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 2px;
+  padding: 2px;
+  width: 1rem; /* slightly wider for readability */
+  height: 20px;   /* max chart height */
+  background: #eee;
+  border-radius: 2px;
+  vertical-align: middle;
+  box-sizing: content-box;
+}
+.kr-spark-bar {
+  width: 100%;
+  background: #0b0c0c; /* GOV.UK black */
+}

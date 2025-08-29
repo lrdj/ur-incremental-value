@@ -1,6 +1,9 @@
 {% extends "layouts/main.html" %}
 {% block pageTitle %}Project{% endblock %}
+
 {% block content %}
+
+<span class="govuk-caption-l">Project delivery</span>
 <h1 class="govuk-heading-l">{{ project.name }}</h1>
 <p class="govuk-body">{{ project.org_name }} – {{ project.department }}</p>
 <p class="govuk-body">Progress: {{ project.current_progress }}</p>
