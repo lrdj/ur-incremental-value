@@ -1,3 +1,13 @@
+r0.3
+
+
+
+r0.2 9 Sept
+- add insight
+- display tables
+- stable
+
+
 # Incremental UR Value Prototype
 
 Prototype built with the GOV.UK Prototype Kit to illustrate how user research insights connect to OKRs and delivery, using a lightweight SQLite database. It ships with dummy data for Defra, DBT, and HMRC.
