@@ -173,7 +173,33 @@ router.get('/insights', (req, res) => {
     SELECT i.id, i.title, i.date_discovered, i.source, i.why_it_matters
     FROM insight i
     ORDER BY i.date_discovered DESC`).all();
-  res.render('insights/list.njk', { insights: list });
+
+  function firstSentence(text) {
+    if (!text) return null;
+    const m = String(text).match(/[^.!?\n]+[.!?]?/);
+    return m ? m[0].trim() : String(text).trim();
+  }
+
+  const rows = list.map(i => {
+    const excerpt = firstSentence(i.why_it_matters) || '';
+    const meta = i.date_discovered ? `${i.date_discovered}${i.source ? ' — ' + i.source : ''}` : '';
+    const valueHtmlParts = [];
+    if (excerpt) valueHtmlParts.push(`${excerpt}`);
+    if (meta) valueHtmlParts.push(`${meta}<br>`);
+    const valueHtml = valueHtmlParts.join('<br>');
+    return {
+      key: { text: i.title },
+      value: { html: valueHtml },
+      actions: {
+        items: [
+          { href: `/insights/${i.id}`, text: 'View', visuallyHiddenText: i.title },
+          { href: `/insights/${i.id}/edit`, text: 'Update', visuallyHiddenText: i.title }
+        ]
+      }
+    };
+  });
+
+  res.render('insights/list.njk', { rows });
 });
 
 // New insight form
@@ -184,7 +210,9 @@ router.get('/insights/new', (req, res) => {
     JOIN objective o ON o.id = kr.objective_id
     JOIN organization org ON org.id = o.organization_id
     ORDER BY org.name, o.title, kr.title`).all();
-  res.render('insights/new.njk', { krs });
+  const error = req.session?.data?.error;
+  if (req.session?.data && req.session.data.error) delete req.session.data.error;
+  res.render('insights/new.njk', { krs, error });
 });
 
 // Create insight + link
@@ -201,7 +229,14 @@ router.post('/insights/new', (req, res) => {
     kr_id,
     weight,
     confidence,
-    mechanism
+    mechanism,
+    contains_pii,
+    linked_by,
+    link_note,
+    persona_story_title,
+    persona_story_body,
+    vox_pop_quote,
+    vox_pop_attribution
   } = body;
 
   if (!title || !date_discovered || !kr_id || !weight) {
@@ -211,8 +246,10 @@ router.post('/insights/new', (req, res) => {
 
   // Insert insight
   const insertInsight = db.prepare(`
-    INSERT INTO insight (title, description, what_we_observed, why_it_matters, evidence, source, date_discovered)
-    VALUES (?, ?, ?, ?, ?, ?, ?)`);
+    INSERT INTO insight (
+      title, description, what_we_observed, why_it_matters, evidence, source, date_discovered, contains_pii,
+      persona_story_title, persona_story_body, vox_pop_quote, vox_pop_attribution
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`);
   const info = insertInsight.run(
     title,
     description || null,
@@ -220,14 +257,19 @@ router.post('/insights/new', (req, res) => {
     why_it_matters || null,
     evidence || null,
     source || null,
-    date_discovered
+    date_discovered,
+    contains_pii ? 1 : 0,
+    persona_story_title || null,
+    persona_story_body || null,
+    vox_pop_quote || null,
+    vox_pop_attribution || null
   );
   const newId = info.lastInsertRowid;
 
   // Link to KR
   db.prepare(`
-    INSERT INTO insight_kr (insight_id, key_result_id, contribution_weight, mechanism, confidence, linked_on, linked_by)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO insight_kr (insight_id, key_result_id, contribution_weight, mechanism, confidence, linked_on, linked_by, note)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
   `).run(
     newId,
     Number(kr_id),
@@ -235,7 +277,8 @@ router.post('/insights/new', (req, res) => {
     mechanism || null,
     confidence ? Number(confidence) : 0.8,
     format(new Date(), 'yyyy-MM-dd'),
-    'Prototype user'
+    (linked_by && linked_by.trim()) ? linked_by.trim() : 'Prototype user',
+    link_note || null
   );
 
   res.redirect(`/insights/${newId}`);
@@ -275,7 +318,102 @@ router.get('/insights/:id', (req, res) => {
     WHERE ei.insight_id = ?
     ORDER BY e.start_on DESC`).all(id);
 
-  res.render('insights/detail.njk', { insight: i, krs, objs, decisions, experiments });
+  // Optional sketch image: try assets served by the Prototype Kit pipeline.
+  // Source folders are under app/assets/images; at runtime they are served at /public/images.
+  const path = require('path');
+  const fs = require('fs');
+  const candidates = [
+    // Check source assets (preferred during dev)
+    { file: path.join(process.cwd(), 'app', 'assets', 'images', 'insight-sketches', `${id}.png`), url: `/public/images/insight-sketches/${id}.png` },
+    { file: path.join(process.cwd(), 'app', 'assets', 'images', `${id}.png`), url: `/public/images/${id}.png` },
+    // Check compiled .tmp (in case images only exist post-build)
+    { file: path.join(process.cwd(), '.tmp', 'public', 'images', 'insight-sketches', `${id}.png`), url: `/public/images/insight-sketches/${id}.png` },
+    { file: path.join(process.cwd(), '.tmp', 'public', 'images', `${id}.png`), url: `/public/images/${id}.png` }
+  ];
+  let imageUrl = null;
+  for (const c of candidates) {
+    try { if (fs.existsSync(c.file)) { imageUrl = c.url; break; } } catch (_) {}
+  }
+
+  res.render('insights/detail.njk', { insight: i, krs, objs, decisions, experiments, imageUrl });
+});
+
+// Insight edit placeholder
+router.get('/insights/:id/edit', (req, res) => {
+  const id = Number(req.params.id);
+  const i = db.prepare(`SELECT * FROM insight WHERE id = ?`).get(id);
+  if (!i) return res.redirect('/insights');
+  const error = req.session?.data?.error;
+  if (req.session?.data && req.session.data.error) delete req.session.data.error;
+  res.render('insights/edit.njk', { insight: i, error });
+});
+
+router.post('/insights/:id/edit', (req, res) => {
+  const id = Number(req.params.id);
+  const existing = db.prepare(`SELECT * FROM insight WHERE id = ?`).get(id);
+  if (!existing) return res.redirect('/insights');
+
+  const body = req.body || {};
+  const {
+    title,
+    description,
+    what_we_observed,
+    why_it_matters,
+    evidence,
+    source,
+    date_discovered,
+    contains_pii,
+    persona_story_title,
+    persona_story_body,
+    vox_pop_quote,
+    vox_pop_attribution
+  } = body;
+
+  if (!title || !date_discovered) {
+    req.session.data.error = 'Title and date discovered are required.'
+    // Re-render with submitted values merged onto existing object
+    const merged = {
+      ...existing,
+      title,
+      description,
+      what_we_observed,
+      why_it_matters,
+      evidence,
+      source,
+      date_discovered,
+      contains_pii: contains_pii ? 1 : 0,
+      persona_story_title,
+      persona_story_body,
+      vox_pop_quote,
+      vox_pop_attribution
+    }
+    return res.render('insights/edit.njk', { insight: merged, error: req.session.data.error });
+  }
+
+  db.prepare(`
+    UPDATE insight
+    SET title = ?, description = ?, what_we_observed = ?, why_it_matters = ?,
+        evidence = ?, source = ?, date_discovered = ?, contains_pii = ?,
+        persona_story_title = ?, persona_story_body = ?,
+        vox_pop_quote = ?, vox_pop_attribution = ?
+    WHERE id = ?
+  `).run(
+    title,
+    description || null,
+    what_we_observed || null,
+    why_it_matters || null,
+    evidence || null,
+    source || null,
+    date_discovered,
+    contains_pii ? 1 : 0,
+    persona_story_title || null,
+    persona_story_body || null,
+    vox_pop_quote || null,
+    vox_pop_attribution || null,
+    id
+  );
+
+  res.redirect(`/insights/${id}`);
 });
 
 // Projects

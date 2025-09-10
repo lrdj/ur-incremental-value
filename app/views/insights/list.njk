@@ -5,10 +5,8 @@
 
 <p class="govuk-body"><a class="govuk-button" data-module="govuk-button" href="/insights/new">Add a new insight</a></p>
 
-<ul class="govuk-list">
-  {% for i in insights %}
-    <li><a href="/insights/{{ i.id }}">{{ i.title }}</a> – {{ i.date_discovered }} – {{ i.source }}</li>
-  {% endfor %}
-</ul>
-{% endblock %}
+{{ govukSummaryList({
+  rows: rows
+}) }}
 
+{% endblock %}

@@ -7,7 +7,9 @@
         <div class="govuk-grid-column-three-quarters">
 
 <span class="govuk-caption-l">Logged UR insight</span>
-<h1 class="govuk-heading-l">{{ insight.title }}</h1>
+
+<h1 class="govuk-heading-xl">{{ insight.title }}</h1>
+
 <p class="govuk-body-l">{{ insight.description }}</p>
 <p class="govuk-body"><strong>What we observed:</strong><br>{{ insight.what_we_observed }}</p>
 <p class="govuk-body"><strong>Why it matters:</strong><br>{{ insight.why_it_matters }}</p>
@@ -75,9 +77,34 @@
 
         </div>
         <div class="govuk-grid-column-one-quarter">
-          <p class="govuk-body">
-          <!-- right-hand column goes here -->
-          </p>
+
+          {% if imageUrl %}
+            <img src="{{ imageUrl }}" style="width:90%;" alt="">
+            <hr style="margin:0.5em 0 1.5em 0;">
+          {% endif %}
+
+          {% if insight.persona_story_title or insight.persona_story_body %}
+          <aside class="govuk-!-margin-bottom-6" aria-labelledby="persona-story">
+            <h2 id="persona-story" class="govuk-heading-m govuk-!-margin-bottom-2">{{ insight.persona_story_title or 'User story' }}</h2>
+            {% if insight.persona_story_body %}
+              <p class="govuk-body">{{ insight.persona_story_body }}</p>
+            {% endif %}
+          </aside>
+          {% endif %}
+
+          {% if insight.vox_pop_quote or insight.vox_pop_attribution %}
+          <aside class="govuk-!-margin-bottom-6" aria-labelledby="vox-pop">
+            <h2 id="vox-pop" class="govuk-heading-m govuk-!-margin-bottom-2">Vox pop</h2>
+            <div class="govuk-inset-text">
+              <p class="govuk-body">
+                {% if insight.vox_pop_quote %}“{{ insight.vox_pop_quote }}”{% endif %}
+                {% if insight.vox_pop_attribution %}
+                  <br><span class="govuk-hint">{{ insight.vox_pop_attribution }}</span>
+                {% endif %}
+              </p>
+            </div>
+          </aside>
+          {% endif %}
         </div>
       </div>
 

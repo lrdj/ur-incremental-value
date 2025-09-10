@@ -3,12 +3,12 @@
 {% block content %}
 <h1 class="govuk-heading-l">Add a new insight</h1>
 
-{% if data.error %}
+{% if error %}
   <div class="govuk-error-summary" data-module="govuk-error-summary">
     <div role="alert">
       <h2 class="govuk-error-summary__title">There is a problem</h2>
       <div class="govuk-error-summary__body">
-        <p class="govuk-body">{{ data.error }}</p>
+        <p class="govuk-body">{{ error }}</p>
       </div>
     </div>
   </div>
@@ -21,8 +21,23 @@
   </div>
 
   <div class="govuk-form-group">
+    <label class="govuk-label" for="description">Description</label>
+    <textarea class="govuk-textarea" id="description" name="description" rows="3"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="what_we_observed">What we observed</label>
+    <textarea class="govuk-textarea" id="what_we_observed" name="what_we_observed" rows="3"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
     <label class="govuk-label" for="why_it_matters">Why it matters</label>
     <textarea class="govuk-textarea" id="why_it_matters" name="why_it_matters"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="evidence">Evidence (semicolon-separated becomes bullet points)</label>
+    <textarea class="govuk-textarea" id="evidence" name="evidence" rows="3" placeholder="Usability sessions; analytics; interviews"></textarea>
   </div>
 
   <div class="govuk-form-group">
@@ -33,6 +48,15 @@
   <div class="govuk-form-group">
     <label class="govuk-label" for="date_discovered">Date discovered</label>
     <input class="govuk-input" id="date_discovered" name="date_discovered" type="date" required>
+  </div>
+
+  <div class="govuk-form-group">
+    <div class="govuk-checkboxes" data-module="govuk-checkboxes">
+      <div class="govuk-checkboxes__item">
+        <input class="govuk-checkboxes__input" id="contains_pii" name="contains_pii" type="checkbox" value="1">
+        <label class="govuk-label govuk-checkboxes__label" for="contains_pii">Contains personal data (PII)</label>
+      </div>
+    </div>
   </div>
 
   <div class="govuk-form-group">
@@ -76,9 +100,40 @@
     <input class="govuk-input" id="mechanism" name="mechanism" type="text" placeholder="e.g. solution_validated">
   </div>
 
+  <h2 class="govuk-heading-m">Optional narrative</h2>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="persona_story_title">User story title</label>
+    <input class="govuk-input" id="persona_story_title" name="persona_story_title" type="text" placeholder="e.g. Marco’s submission hiccup">
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="persona_story_body">User story</label>
+    <textarea class="govuk-textarea" id="persona_story_body" name="persona_story_body" rows="3" placeholder="Short, human vignette explaining the situation"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="vox_pop_quote">Vox pop quote</label>
+    <textarea class="govuk-textarea" id="vox_pop_quote" name="vox_pop_quote" rows="2" placeholder="Short, verbatim quote"></textarea>
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="vox_pop_attribution">Quote attribution</label>
+    <input class="govuk-input" id="vox_pop_attribution" name="vox_pop_attribution" type="text" placeholder="e.g. Junior broker, interview">
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="linked_by">Linked by (optional)</label>
+    <input class="govuk-input" id="linked_by" name="linked_by" type="text" placeholder="Your name">
+  </div>
+
+  <div class="govuk-form-group">
+    <label class="govuk-label" for="link_note">Link note (optional)</label>
+    <input class="govuk-input" id="link_note" name="link_note" type="text" placeholder="Short note about this link">
+  </div>
+
   <button class="govuk-button" data-module="govuk-button" type="submit">Save insight</button>
 </form>
 
 <p class="govuk-body"><a class="govuk-link" href="/insights">Back to insights</a></p>
 {% endblock %}
-
