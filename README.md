@@ -1,6 +1,7 @@
-r0.3
-
-
+r0.3 9 Sept
+- added edit insight
+- added images and voxpop
+- stable / runs
 
 r0.2 9 Sept
 - add insight
